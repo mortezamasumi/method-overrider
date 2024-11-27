@@ -1,6 +1,6 @@
 <?php
 
-namespace ChristophRumpel\MethodOverrider;
+namespace MortezaMasumi\MethodOverrider;
 
 use InvalidArgumentException;
 use ReflectionMethod;
@@ -13,20 +13,19 @@ class MethodOverrider
      * @param callable|array<int, callable> $implementations
      */
     public function override(
-        string         $class,
-        string|array   $methodNames,
+        string $class,
+        string|array $methodNames,
         callable|array $implementations,
-        bool           $returnNewClassString = false
-    ): object|string|false
-    {
-        $methods = is_array($methodNames) ? $methodNames : [$methodNames];
+        bool $returnNewClassString = false
+    ): object|string|false {
+        $methods         = is_array($methodNames) ? $methodNames : [$methodNames];
         $implementations = is_array($implementations) ? $implementations : [$implementations];
 
-        if (! class_exists($class)) {
+        if (!class_exists($class)) {
             return false;
         }
 
-        if (! $this->allMethodsExist($class, $methods)) {
+        if (!$this->allMethodsExist($class, $methods)) {
             return false;
         }
 
@@ -37,17 +36,17 @@ class MethodOverrider
         $methodDefinitions = $this->buildMethodDefinitions($class, $methods);
 
         $classDefinition = <<<EOT
-    new class(\$implementations) extends \\$class {
-        private array \$implementations;
+                new class(\$implementations) extends \\$class {
+                    private array \$implementations;
 
-        public function __construct(array \$implementations)
-        {
-            \$this->implementations = \$implementations;
-        }
+                    public function __construct(array \$implementations)
+                    {
+                        \$this->implementations = \$implementations;
+                    }
 
-        $methodDefinitions
-    }
-EOT;
+                    $methodDefinitions
+                }
+            EOT;
 
         return eval("return $classDefinition;");
     }
@@ -58,7 +57,7 @@ EOT;
     private function allMethodsExist(string $class, array $methods): bool
     {
         foreach ($methods as $method) {
-            if (! method_exists($class, $method)) {
+            if (!method_exists($class, $method)) {
                 return false;
             }
         }
@@ -74,24 +73,24 @@ EOT;
         $definitions = [];
 
         foreach ($methods as $index => $methodName) {
-            $returnType = $this->getMethodReturnType($class, $methodName);
-            $parameters = $this->getMethodParameters($class, $methodName);
-            $parameterList = $this->buildParameterList($parameters);
+            $returnType     = $this->getMethodReturnType($class, $methodName);
+            $parameters     = $this->getMethodParameters($class, $methodName);
+            $parameterList  = $this->buildParameterList($parameters);
             $parameterNames = $this->buildParameterNames($parameters);
 
-            $useClause = $parameterNames !== '' && $parameterNames !== '0' ? " use ($parameterNames)" : '';
+            $useClause            = $parameterNames !== '' && $parameterNames !== '0' ? " use ($parameterNames)" : '';
             $implementationParams = $parameterNames !== '' && $parameterNames !== '0' ? ", $parameterNames" : '';
 
             $definitions[] = <<<EOT
-                public function $methodName($parameterList)$returnType
-                {
-                    \$original = function()$useClause {
-                        return parent::$methodName($parameterNames);
-                    };
+                                public function $methodName($parameterList)$returnType
+                                {
+                                    \$original = function()$useClause {
+                                        return parent::$methodName($parameterNames);
+                                    };
 
-                    return (\$this->implementations[$index])(\$original$implementationParams);
-                }
-EOT;
+                                    return (\$this->implementations[$index])(\$original$implementationParams);
+                                }
+                EOT;
         }
 
         return implode("\n\n        ", $definitions);
@@ -124,17 +123,17 @@ EOT;
 
         return implode(', ', array_map(function (ReflectionParameter $param): string {
             /* @phpstan-ignore-next-line */
-            $type = $param->getType()?->getName();
-            $name = $param->getName();
+            $type       = $param->getType()?->getName();
+            $name       = $param->getName();
             $isOptional = $param->isOptional();
             $hasDefault = $param->isDefaultValueAvailable();
 
-            $paramStr = $type ? "$type $$name" : "$$name";
+            $paramStr = $type ? "$type \$$name" : "\$$name";
 
             if ($hasDefault) {
-                $default = $param->getDefaultValue();
+                $default    = $param->getDefaultValue();
                 $defaultStr = is_string($default) ? "'$default'" : $default;
-                $paramStr .= ' = ' . var_export($defaultStr, true);
+                $paramStr  .= ' = ' . var_export($defaultStr, true);
             } elseif ($isOptional) {
                 $paramStr .= ' = null';
             }
@@ -156,19 +155,18 @@ EOT;
     }
 
     public function generateOverriddenClass(
-        string         $class,
-        string|array   $methodNames,
+        string $class,
+        string|array $methodNames,
         callable|array $implementations,
-    ): array
-    {
-        $methods = is_array($methodNames) ? $methodNames : [$methodNames];
+    ): array {
+        $methods         = is_array($methodNames) ? $methodNames : [$methodNames];
         $implementations = is_array($implementations) ? $implementations : [$implementations];
 
-        if (! class_exists($class)) {
+        if (!class_exists($class)) {
             throw new InvalidArgumentException('Class does not exist');
         }
 
-        if (! $this->allMethodsExist($class, $methods)) {
+        if (!$this->allMethodsExist($class, $methods)) {
             throw new InvalidArgumentException('Method does not exist');
         }
 
@@ -176,28 +174,27 @@ EOT;
             throw new InvalidArgumentException('Number of methods and implementations must match');
         }
 
-        $newClassName = basename(str_replace('\\', '/', $class)) . 'CacheProxy';
+        $newClassName      = basename(str_replace('\\', '/', $class)) . 'CacheProxy';
         $methodDefinitions = $this->buildMethodDefinitions($class, $methods);
 
         return [
-            'content' => <<<EOT
-<?php
+            'content'         => <<<EOT
+                <?php
 
-class {$newClassName} extends \\{$class}
-{
-    private array \$implementations;
+                class {$newClassName} extends \\{$class}
+                {
+                    private array \$implementations;
 
-    public function __construct(array \$implementations)
-    {
-        \$this->implementations = \$implementations;
-    }
+                    public function __construct(array \$implementations)
+                    {
+                        \$this->implementations = \$implementations;
+                    }
 
-    {$methodDefinitions}
-}
-EOT,
+                    {$methodDefinitions}
+                }
+                EOT,
             'implementations' => $implementations,
-            'className' => $newClassName,
+            'className'       => $newClassName,
         ];
     }
-
 }
