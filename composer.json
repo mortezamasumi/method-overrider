@@ -1,7 +1,7 @@
 {
     "name": "mortezamasumi/method-overrider",
     "description": "A PHP package to override methods. it is a clone from Christoph Rumpel package",
-    "version": "v1.0",
+    "version": "v1.1",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -36,7 +36,7 @@
             "Tests\\": "tests/"
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true,
     "config": {
         "sort-packages": true,
