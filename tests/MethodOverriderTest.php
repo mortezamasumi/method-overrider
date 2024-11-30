@@ -1,6 +1,6 @@
 <?php
 
-use ChristophRumpel\MethodOverrider\MethodOverrider;
+use Mortezamasumi\MethodOverrider\MethodOverrider;
 use Tests\Services\IntegerService;
 
 it('returns false if class does not exist', function (): void {
@@ -77,7 +77,7 @@ it('overrides two methods of a class', function (): void {
 it('can generate a class file with its implementations', function (): void {
     // Arrange
     $methodOverrider = new MethodOverrider;
-    $implementation = fn(callable $original): int => $original() + 1;
+    $implementation  = fn(callable $original): int => $original() + 1;
 
     // Act
     $result = $methodOverrider->generateOverriddenClass(
@@ -97,7 +97,7 @@ it('can generate a class file with its implementations', function (): void {
 
     require $tempFile;
     $className = $result['className'];
-    $instance = new $className($result['implementations']);
+    $instance  = new $className($result['implementations']);
     unlink($tempFile);
 
     expect($instance)

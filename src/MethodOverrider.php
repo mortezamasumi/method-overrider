@@ -1,6 +1,6 @@
 <?php
 
-namespace MortezaMasumi\MethodOverrider;
+namespace Mortezamasumi\MethodOverrider;
 
 use InvalidArgumentException;
 use ReflectionMethod;
