@@ -1,17 +1,19 @@
 {
     "name": "mortezamasumi/method-overrider",
-    "description": "A PHP package to override methods.",
+    "description": "A PHP package to override methods. it is a clone from Christoph Rumpel package",
+    "version": "1.0.0",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Morteza Masumi",
+            "email": "morteza.masumi@gmail.com"
+        }
+    ],
     "keywords": [
         "php",
         "overriding",
         "methods"
-    ],
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Christoph Rumpel",
-            "email": "christoph@christoph-rumpel.com"
-        }
     ],
     "require": {
         "php": "^8.3"
